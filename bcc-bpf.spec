@@ -85,7 +85,10 @@ Standalone tool to run BCC tracers written in Lua
 %build
 install -d build
 cd build
-%cmake ..
+%cmake \
+	-DREVISION=%{version} \
+	-DREVISION_LAST=%{version} \
+	..
 %{__make}
 
 %install
