@@ -21,9 +21,13 @@ URL:		https://iovisor.github.io/bcc/
 BuildRequires:	bison
 BuildRequires:	cmake >= 2.8.7
 BuildRequires:	elfutils-libelf
+BuildRequires:	elfutils-devel
 BuildRequires:	flex
 BuildRequires:	gcc
 BuildRequires:	libstdc++-devel
+BuildRequires:	llvm-devel
+BuildRequires:	clang-devel
+BuildRequires:	ncurses-devel
 %{?with_lua:BuildRequires: pkgconfig(luajit)}
 BuildRequires:	python-devel
 ExclusiveArch:	%{ix86} %{x8664} power64
