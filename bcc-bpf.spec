@@ -1,6 +1,7 @@
 #
 # Conditional build:
-%bcond_without	lua		# build without tests
+%bcond_without	lua		# lua
+%bcond_without	python	# python
 
 # luajit is not available for some architectures
 %ifnarch %{ix86} %{x8664} %{arm} mips ppc
@@ -18,7 +19,7 @@ Source0:	https://github.com/iovisor/bcc/archive/v%{version}/bcc-%{version}.tar.g
 URL:		https://iovisor.github.io/bcc/
 BuildRequires:	bison
 BuildRequires:	cmake >= 2.8.7
-BuildRequires:	elfutils-libelf-devel-static
+BuildRequires:	elfutils-libelf
 BuildRequires:	flex
 BuildRequires:	gcc
 BuildRequires:	libstdc++-devel
@@ -45,9 +46,19 @@ Group:		Libraries
 %description libs
 Shared Library for BPF Compiler Collection (BCC)
 
+%package devel
+Summary:	Shared library for BPF Compiler Collection (BCC)
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+
+%description devel
+The %{name}-devel package contains libraries and header files for
+developing application that use BPF Compiler Collection (BCC).
+
 %package -n python-%{name}
 Summary:	Python bindings to %{name}
 Group:		Libraries/Python
+Requires:	%{name}-libs = %{version}-%{release}
 
 %description -n python-%{name}
 Python bindings for BPF Compiler Collection (BCC)
@@ -55,6 +66,7 @@ Python bindings for BPF Compiler Collection (BCC)
 %package tools
 Summary:	Tools for BPF Compiler Collection (BCC)
 Group:		Applications
+Requires:	%{name}-libs = %{version}-%{release}
 
 %description tools
 Command line tools for BPF Compiler Collection (BCC)
@@ -62,6 +74,7 @@ Command line tools for BPF Compiler Collection (BCC)
 %package -n lua-%{name}
 Summary:	LUA bindings to %{name}
 Group:		Applications
+Requires:	%{name}-libs = %{version}-%{release}
 
 %description -n lua-%{name}
 Standalone tool to run BCC tracers written in Lua
@@ -80,23 +93,46 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
 
+%{__rm} -r $RPM_BUILD_ROOT%{_datadir}/bcc/tools/old
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files -n python-%{name}
-%defattr(644,root,root,755)
-%{py_sitescriptdir}/bcc*
+%post	libs -p /sbin/ldconfig
+%postun	libs -p /sbin/ldconfig
 
 %files libs
 %defattr(644,root,root,755)
-%{_libdir}/*
-%{_includedir}/bcc/*
+%doc README.md
+%attr(755,root,root) %{_libdir}/libbcc.so.*.*.*
+%ghost %{_libdir}/libbcc.so.0
+%attr(755,root,root) %{_libdir}/libbpf.so.*.*.*
+%ghost %{_libdir}/libbpf.so.0
+
+%files devel
+%defattr(644,root,root,755)
+%{_libdir}/libbpf.so
+%{_libdir}/libbcc.so
+%{_includedir}/bcc
+%{_pkgconfigdir}/libbcc.pc
 
 %files tools
 %defattr(644,root,root,755)
-%{_datadir}/bcc/tools/*
-%{_datadir}/bcc/man/*
+%dir %{_datadir}/bcc
+%{_datadir}/bcc/examples
+%{_datadir}/bcc/introspection
+%{_datadir}/bcc/man
+%{_datadir}/bcc/tools
 
+%if %{with lua}
 %files -n lua-%{name}
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/bcc-lua
+%endif
+
+%if %{with python}
+%files -n python-%{name}
+%defattr(644,root,root,755)
+%{py_sitedir}/bcc
+%{py_sitedir}/bcc-*-py*.egg-info
+%endif
