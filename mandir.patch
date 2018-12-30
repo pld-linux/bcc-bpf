@@ -1,0 +1,8 @@
+--- bcc-0.7.0/man/man8/CMakeLists.txt~	2018-09-05 03:36:40.000000000 +0300
++++ bcc-0.7.0/man/man8/CMakeLists.txt	2018-12-30 23:37:50.110062719 +0200
+@@ -9,4 +9,4 @@
+   list(APPEND GZFILES "${CMAKE_CURRENT_BINARY_DIR}/${NAME}.gz")
+ endforeach()
+ add_custom_target(man ALL DEPENDS ${GZFILES})
+-install(FILES ${GZFILES} DESTINATION share/bcc/man/man8)
++install(FILES ${GZFILES} DESTINATION share/man/man8)
