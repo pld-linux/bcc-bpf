@@ -86,7 +86,7 @@ Standalone tool to run BCC tracers written in Lua
 
 %prep
 %setup -q -n bcc-%{version}
-%patch0 -p1
+%patch -P0 -p1
 
 %build
 install -d build
